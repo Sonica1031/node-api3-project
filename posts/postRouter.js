@@ -1,27 +1,42 @@
 const express = require('express');
+const db = require("../posts/postDb");
+const postMiddleware = require("../data/middleware/verifyPost");
+
 
 const router = express.Router();
 
 router.get('/', (req, res) => {
-  // do your magic!
+  db.get()
+    .then(response =>{
+      res.status(200).json(response)
+    .catch(error => {
+      next(error);
+    })
+    })
 });
 
-router.get('/:id', (req, res) => {
-  // do your magic!
+router.get('/:id', postMiddleware.verifyPost(), (req, res) => {
+     res.status(200).json(req.post)
 });
 
-router.delete('/:id', (req, res) => {
-  // do your magic!
+router.delete('/:id', postMiddleware.verifyPost(), (req, res) => {
+  db.remove(req.post.id)
+    .then(response =>{
+      res.status(202).json(response)
+    })
+    .catch(error =>
+      next(error)
+      )
 });
 
-router.put('/:id', (req, res) => {
-  // do your magic!
+router.put('/:id', postMiddleware.verifyPost(), postMiddleware.verifyBody(), (req, res, next) => {
+  db.update(req.post.id, {text: req.body.text})
+    .then(response =>{
+      res.status(200).json(response)
+    })
+    .catch(error =>
+      next(error)
+      )
 });
-
-// custom middleware
-
-function validatePostId(req, res, next) {
-  // do your magic!
-}
 
 module.exports = router;
